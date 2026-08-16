@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ryu.docling",
+  "version": "0.1.14",
+  "description": "Document parsing via IBM's MIT-licensed Docling — the highest-fidelity `document.parse` backend. Where a text extractor hands a model a stream of characters, Docling runs real layout analysis: a page-segmentation model finds the reading order, a table-structure model rebuilds merged cells and spanning headers, and the result is exported as markdown whose headings, lists and tables mirror the document's actual structure. That is what makes a multi-column paper or a financial statement survive chunking instead of interleaving into nonsense. The cost is weight: the first parse downloads its models (hundreds of MB) and can take minutes, and every parse after that is CPU-bound inference rather than a string copy. Everything runs locally — Docling explicitly supports air-gapped operation once the models are cached — and no document ever leaves the node. Parses run as jobs: submit returns 202 + a job_id, the caller polls.",
+  "keywords": [
+    "document",
+    "parse",
+    "pdf",
+    "docx",
+    "tables",
+    "layout",
+    "ocr",
+    "extraction"
+  ],
+  "extensions": {
+    "com.ryuhq.ryu": {
+      "id": "@ryu/docling",
+      "displayName": "Docling"
+    }
+  }
+}
