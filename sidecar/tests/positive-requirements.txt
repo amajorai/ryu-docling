@@ -1,0 +1,13 @@
+# Local positive PDF/table and scanned RapidOCR run: CPython 3.12.13/macOS arm64.
+# Requires docling[rapidocr] and matching selected-engine model assets as well.
+# This is not a transitive lock or proof for other documents and platforms.
+# Run pip check and validate selected-engine model compatibility before inference.
+docling==2.132.0
+docling-core==2.99.0
+torch==2.14.1
+transformers==5.18.0
+rapidocr==3.9.2
+docling-ibm-models==4.0.3
+pypdfium2==5.13.0
+fastapi==0.142.2
+uvicorn==0.54.0
