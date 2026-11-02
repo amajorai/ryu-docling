@@ -1,0 +1,48 @@
+[project]
+name = "ryu-docling-sidecar"
+version = "0.1.0"
+description = "Ryu's Core-managed Docling document-parsing sidecar (document.parse backend)"
+# Docling itself requires 3.10+; the server half would run on 3.9, but declaring a
+# floor the parser cannot meet would turn a clear install error into a runtime one.
+requires-python = ">=3.10"
+# Base server deps only. `docling` is an optional extra so this process boots and
+# answers /health + /capability on any machine — that is how a user finds out the
+# parser is not installed yet, instead of discovering it as a dead sidecar. A
+# missing parse dep becomes a typed per-job error, never a boot crash.
+dependencies = [
+    # FastAPI 0.133 is the first release that accepts Starlette 1.x; Starlette 1.3.1
+    # fixes the multipart, Range, Host/path-reconstruction, and HTTPEndpoint advisories
+    # (PYSEC-2026-161/248/249/1941/1942/1943/2280/2281) every older floor admitted.
+    "fastapi>=0.133.0",
+    "starlette>=1.3.1",
+    "uvicorn>=0.29",
+    "pydantic>=2.7.0",
+]
+
+[project.optional-dependencies]
+# `pip install -e ".[parse]"` — the manifest's `pyproject_extra`. This pulls
+# docling and, transitively, torch + the docling model wrappers: a multi-GB
+# install. The layout and table-structure model *weights* are NOT in the wheel;
+# they are fetched on the first parse. See README.md.
+# docling-slim capped Pillow below 13 until 2.142.0; Pillow 13.0.0 fixes the TIFF/PDF/GIF/BMP
+# decoder advisories (GHSA-78g4-xqwv-q3g8, PYSEC-2026-4326..4343, CVE-2026-96638 and others).
+# Pillow 13 requires Python 3.11, so the floor is marker-gated: Core builds the venv from
+# the host's python3 (the manifest's python_version is only a hint), and an unconditional
+# floor would make the whole sidecar uninstallable on 3.10. Those Pillow advisories stay
+# open on 3.10 hosts; use Python 3.11+ for the patched decoder.
+parse = ["docling>=2.142.0", "pillow>=13.0.0; python_version >= '3.11'"]
+# Tesseract as an alternative OCR engine. The Python binding is pip-installable
+# but the `tesseract` binary and its language data are NOT — see README.md.
+# Docling's default OCR engine (EasyOCR) needs no native binary at all, which is
+# why this is opt-in rather than part of `parse`.
+tesseract = ["docling>=2.142.0", "pillow>=13.0.0; python_version >= '3.11'", "tesserocr>=2.6"]
+
+[project.scripts]
+ryu-docling = "ryu_docling.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ryu_docling"]
